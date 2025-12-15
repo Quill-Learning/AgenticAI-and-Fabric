@@ -2,7 +2,7 @@
 
 **Overview:** In this lab, you will extend the work from **Lab Demo 001** by enabling an intelligent agent to query your data in a governed way. You’ll expose the curated sales data (from your Fabric Lakehouse) via an API, use **Microsoft Foundry** to create an agent that can query this data, and implement a minimal **MCP proxy** service to manage the agent’s data access (handling authentication, caching, validation, etc.). Finally, you’ll test the end-to-end flow and optionally build a simple web interface to query the agent. Each step includes an explanation of why it’s important.
 
-**Important:** In this lab, **Task 2 (Agent creation in Foundry)** is **instructor-led**. Students will not create Azure resources themselves. The instructor will demonstrate the agent setup in Microsoft Foundry and provide you with the necessary details (like the agent’s name or an endpoint to use). So, follow along with the understanding of what the instructor is doing, but you won’t perform Task 2 on your own. All other tasks (1, 3, 4, 5, and cleanup) are to be completed by you (the student).
+**Important (live lab):** In this lab, **Task 2 (Agent creation in Foundry)** is **instructor-led** so the class can move quickly and avoid per-student setup of models/permissions. You won’t need to create Azure resources during the workshop. Instead, follow along and capture the values you’ll need later (for example, the agent/tool name and the endpoint details). All other tasks (1, 3, 4, 5, and cleanup) are completed by you (the student).
 
 **Lab Tasks at a Glance:**
 
@@ -68,7 +68,7 @@ In this lab, we’ll use **GraphQL** for the main end-to-end flow (agent → pro
 
 ## Task 2: *(Instructor-Led Demonstration)* Create a Microsoft Foundry Agent Connected to Fabric
 
-**⚠️ Note to students:** This task is performed by the **instructor** as a demonstration. **You will not create the agent yourself.** Instead, pay attention to how it’s set up, because you’ll use the provided agent details in later tasks. The instructor will provide you with any information you need (like an agent name, an ID, or an endpoint to call) after this demo.
+**⚠️ Note to students (live lab):** This task is usually demonstrated by the instructor so the class can move quickly and avoid per-student setup of models/permissions. If you want to repeat the lab later in your own tenant, you can follow these same steps to create the agent yourself.
 
 **Why?** We want an AI agent that can answer questions about our data. Microsoft Foundry is a platform where we can create such an agent backed by a large language model (LLM) (e.g., GPT-4). We will configure the agent with:
 
@@ -78,11 +78,11 @@ In this lab, we’ll use **GraphQL** for the main end-to-end flow (agent → pro
 
 By doing this, the agent can take a user’s question in natural language, retrieve relevant data via the tool, and then respond with an answer.
 
-**What the instructor will do (demonstration steps):**
+**What happens in this task (steps):**
 
-1.  **Open Microsoft Foundry:** The instructor will navigate to the Microsoft Foundry portal and log in.
-2.  **Select or create a project:** In Foundry, agents are organized under projects. The instructor might use a pre-created project for the workshop or create a new one (e.g., “FabricWorkshopProject”).
-3.  **Create a new Agent (FabricSalesAgent):** The instructor will create an agent, for example named **`FabricSalesAgent`**, with settings such as:
+1.  **Open Microsoft Foundry:** Sign in to the Microsoft Foundry portal.
+2.  **Select or create a project:** In Foundry, agents are organized under projects. Use the project provided for the workshop, or create a new one (e.g., “FabricWorkshopProject”) when practicing later.
+3.  **Create a new Agent (example: FabricSalesAgent):** Create an agent (for example named **`FabricSalesAgent`**) with settings such as:
     *   **LLM Model:** Choose an appropriate model (e.g., GPT-4 or a specified foundation model available in Foundry).
     *   **System Instructions:** A prompt that defines the agent’s role, e.g.: *“You are a sales data assistant. You can answer questions about sales performance using the data tool provided.”*
     *   Keep the agent focused: The instructions may emphasize using the data tool rather than guessing.
@@ -167,7 +167,7 @@ By doing this, the agent can take a user’s question in natural language, retri
         ```
 
     *   **Keep it simple:** Do **not** add a direct Fabric GraphQL action in Foundry for this lab. Fabric GraphQL requires `Authorization: Bearer <token>` (Entra ID), and the OpenAPI action experience typically won’t manage those tokens reliably.
-    *   If using **Fabric Data Agent:** The instructor will add a Fabric-specific tool:
+    *   If using **Fabric Data Agent:** Add a Fabric-specific tool:
         *   Foundry might provide a way to connect to the Fabric Data Agent (perhaps by selecting the workspace and Lakehouse and using existing credentials).
         *   This would let the agent ask questions that get forwarded to Fabric’s Q\&A.
         *   If you’re prompted for **`workspace-id`** and **`artifact-id`** (as “Custom keys” when creating an **Azure Fabric AI Skill** / Fabric data agent connection), copy them from the **published Fabric data agent endpoint**:
@@ -175,9 +175,9 @@ By doing this, the agent can take a user’s question in natural language, retri
             *   `workspace-id` is the GUID after `/groups/`
             *   `artifact-id` is the GUID after `/aiskills/`
     *   In both cases, the tool’s description will be provided so the agent knows how to use it.
-5.  **Finalize agent setup:** The instructor saves the agent. At this point, the agent exists within Foundry, but it might not be fully functional until hooked with our proxy (especially if it lacks direct auth to Fabric).
-6.  **Test the agent briefly:** The instructor may show a test query in the Foundry console, like asking “How many orders are there in the data?” If the tool is set up and if credentials are in place, the agent might call the GraphQL tool and attempt an answer. Often in a lab, the agent might not work fully yet because we haven’t implemented auth or an easy query format – that’s where the MCP proxy comes in.
-7.  **Provide details to students:** The instructor will hand over relevant info so you can continue:
+5.  **Save the agent/tool setup:** At this point, the agent exists within Foundry, but it may not be fully functional until the tool points to a reachable proxy URL (Task 4).
+6.  **Test briefly:** In the Foundry test chat, try a simple prompt (for example: “Call the tool and show me the raw JSON”). If the tool is configured correctly, you should see a tool call.
+7.  **Collect the details you’ll need for the rest of the lab:** Make sure you have:
     *   The **GraphQL endpoint URL** (if not already noted).
     *   Confirmation of the data (table name, etc., in case needed for queries).
     *   If the Foundry agent has an accessible endpoint or ID for your proxy to call, those details (in many cases, though, we won’t call the agent via HTTP; we’ll call the data through the proxy, and the agent’s logic will run in Foundry when we test it there).
