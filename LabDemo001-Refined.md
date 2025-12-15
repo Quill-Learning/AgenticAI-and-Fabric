@@ -112,28 +112,28 @@ Each task below includes **why it’s important** and **how to do it** step-by-s
 2.  **Start a new pipeline:** Select **Get data** > **New data pipeline**.
 3.  **Name the pipeline:** Enter **`IngestSalesDataCopilot`** and create it.
 4.  **Close the initial wizard (if prompted):** If the Copy Assistant/wizard opens automatically, close or cancel it so you return to the pipeline canvas.
-5.  **Open Copilot:** Select **Copilot** from the pipeline ribbon. ![Copilot button](image.png)
+5.  **Open Copilot:** Select **Copilot** from the pipeline ribbon. ![Copilot button](Lab001/image.png)
 6.  **Generate the pipeline with a prompt:** In Copilot, enter the following prompt:
     
     `Ingest the data from https://raw.githubusercontent.com/MicrosoftLearning/dp-data/main/sales.csv into the SalesLakehouse as a table`
-7.  **Confirm connections (prompted by Copilot):** Copilot will prompt you to confirm or choose the **source** and **destination** connections. ![Connection prompt](image-1.png)
+7.  **Confirm connections (prompted by Copilot):** Copilot will prompt you to confirm or choose the **source** and **destination** connections. ![Connection prompt](Lab001/image-1.png)
 8.  **Review the source settings:** Select the **Copy data** activity, then open the **Source** tab.
-    *   Select the **URL/HTTP** connection for the source. ![Source connection](image-3.png)
+    *   Select the **URL/HTTP** connection for the source. ![Source connection](Lab001/image-3.png)
     *   Ensure **File format** is set to **Avro**.
 9.  **Review the destination settings:** Open the **Destination** tab.
-    *   Select the **Lakehouse** connection. ![Destination connection](image-4.png)
+    *   Select the **Lakehouse** connection. ![Destination connection](Lab001/image-4.png)
     *   Choose **`SalesLakehouse`** as the destination.
 10. **Set the table name with Copilot:** In Copilot, enter the following prompt:
     
     `Set copyActivity1 to create a new table called salesdata with a schema of dbo`
-11. **Save and run:** Save the pipeline, then either select **Run** or ask Copilot to run it. ![Run pipeline](image-5.png)
+11. **Save and run:** Save the pipeline, then either select **Run** or ask Copilot to run it. ![Run pipeline](Lab001/image-5.png)
 
-12. **Observe the failure:** Note that the pipeline run fails. Then select the Copilot icon to get troubleshooting insights. ![Copilot insights](image-6.png)
+12. **Observe the failure:** Note that the pipeline run fails. Then select the Copilot icon to get troubleshooting insights. ![Copilot insights](Lab001/image-6.png)
 13. **Identify the cause:** The run fails because the **source file format** is incorrect for a CSV.
 14. **Fix the source file format:** Select the **Copy data** activity, then open the **Source** tab.
-    *   Confirm the **URL/HTTP** connection is selected. ![Source connection](image-3.png)
+    *   Confirm the **URL/HTTP** connection is selected. ![Source connection](Lab001/image-3.png)
     *   Set **File format** to **DelimitedText**.
-15. **Save and re-run:** Save the pipeline, then run it again (or ask Copilot to run it). ![Run pipeline](image-5.png)
+15. **Save and re-run:** Save the pipeline, then run it again (or ask Copilot to run it). ![Run pipeline](Lab001/image-5.png)
 
 > **Explanation:** This lab intentionally duplicates the ingestion: you completed it once manually (Task 3) and once with Copilot (this task). The key learning is the workflow: prompt Copilot to create the pipeline, then validate/update the **source**, **destination**, and **table name** before running.
 
@@ -159,22 +159,22 @@ Each task below includes **why it’s important** and **how to do it** step-by-s
     *   If the data preview looks correct (rows of data, reasonable values under each column), then the ingestion is validated.
 4.  **Close the preview:** (optional) Close the preview window/pane to continue.
 
-5.  **Switch to the SQL analytics endpoint:** Open the SQL analytics endpoint for the Lakehouse. ![SQL analytics endpoint](image-7.png)
-6.  **Open Copilot:** Select the Copilot icon on the ribbon. ![Copilot icon](image-8.png)
-7.  **Get started with Copilot:** Select **Get started**. ![Get started](image-9.png)
+5.  **Switch to the SQL analytics endpoint:** Open the SQL analytics endpoint for the Lakehouse. ![SQL analytics endpoint](Lab001/image-7.png)
+6.  **Open Copilot:** Select the Copilot icon on the ribbon. ![Copilot icon](Lab001/image-8.png)
+7.  **Get started with Copilot:** Select **Get started**. ![Get started](Lab001/image-9.png)
 8.  **Ask Copilot for a row count:** Use the prompt:
     
     `How many records in the table 'salesdata'`
-9.  **Review the generated query:** Copilot will generate a SQL query for you. ![Generated SQL](image-10.png)
-10. **Insert the SQL into the editor:** Select **Insert code**, and confirm it creates a new SQL query tab. ![Insert code](image-11.png) ![New SQL query](image-12.png)
-11. **Run and validate:** Run the query and confirm the result count (expected: **32,718** rows). ![Row count result](image-13.png)
+9.  **Review the generated query:** Copilot will generate a SQL query for you. ![Generated SQL](Lab001/image-10.png)
+10. **Insert the SQL into the editor:** Select **Insert code**, and confirm it creates a new SQL query tab. ![Insert code](Lab001/image-11.png) ![New SQL query](Lab001/image-12.png)
+11. **Run and validate:** Run the query and confirm the result count (expected: **32,718** rows). ![Row count result](Lab001/image-13.png)
 12. **Ask for additional validation queries:** Return to Copilot and ask:
     
     `What other queries should I use to validate the data and counts?`
     
     Note the suggestions Copilot provides.
 
-![alt text](image-14.png)
+![alt text](Lab001/image-14.png)
 
 > **Explanation:** By previewing `sales.csv` in the Lakehouse, you confirmed the pipeline did its job: the file is in the correct location and the content is readable. The headers indicate that the **“First row as header”** setting worked (so the first line became headers, not a data row). This step is crucial whenever you load new data, to catch any issues early (like wrong delimiter causing all data to end up in one column, or an empty file due to a bad connection). Everything looks good, so you can proceed to use this data confidently.
 
@@ -196,13 +196,13 @@ Now that the raw data is in the Lakehouse, let’s perform a simple **transforma
 
 2.  **Create a new Notebook:** In your workspace (still in `CopilotLabWorkspaceDemo1`), click **New** (or **New item**) and select **Notebook**.
     *   If prompted to choose an experience, pick the one that allows notebooks (Data Engineering).
-3. Name the notebook "IngestSalesData" and ensure the correct workspace is slected for teh lcoation ![alt text](image-15.png)
+3. Name the notebook "IngestSalesData" and ensure the correct workspace is slected for teh lcoation ![alt text](Lab001/image-15.png)
 
 3.  **Attach the Lakehouse to the Notebook:** From the explorer pane, choose add data items and select SalesLakehouse. 
-![alt text](image-16.png)
+![alt text](Lab001/image-16.png)
 
 Make sure the lcoation is in your workspace
-![alt text](image-17.png)
+![alt text](Lab001/image-17.png)
 
 Choose **`SalesLakehouse`**. Then Select  **Connect** to add to the notebook.
     *   Attaching the Lakehouse means the Spark session for this notebook can directly interact with `SalesLakehouse` (read from its Files, write to its Tables).
@@ -211,7 +211,7 @@ Choose **`SalesLakehouse`**. Then Select  **Connect** to add to the notebook.
 4.  **Notebook interface:** After creation, you should see a new notebook tab open. It usually contains an empty cell and shows that it’s connected to a Spark runtime (you might see a status like “Running” or a kernel indicator).
     *   Confirm on the left side that under “Explorer”, there is an entry for `SalesLakehouse`. This indicates the notebook is properly attached.
     *   Also note the dropdown for language in the top of the cell; it might default to PySpark (Python for Spark) or No Language. We will use PySpark here.
-    ![alt text](image-18.png)
+    ![alt text](Lab001/image-18.png)
 
 > **Explanation:** In Fabric, a **notebook** is essentially a Jupyter-style notebook integrated into the service, which allows interactive coding. By attaching `SalesLakehouse`, any file path or table name we reference in Spark will be relative to that Lakehouse’s data. This integration simplifies reading/writing data – we don’t have to manually connect to storage; it’s done by Fabric. Now with the notebook ready, we can use Spark to manipulate our sales data.
 
