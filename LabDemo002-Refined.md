@@ -4,13 +4,23 @@
 
 **Important:** In this lab, **Task 2 (Agent creation in Foundry)** is **instructor-led**. Students will not create Azure resources themselves. The instructor will demonstrate the agent setup in Microsoft Foundry and provide you with the necessary details (like the agent’s name or an endpoint to use). So, follow along with the understanding of what the instructor is doing, but you won’t perform Task 2 on your own. All other tasks (1, 3, 4, 5, and cleanup) are to be completed by you (the student).
 
-Let’s get started.
+**Lab Tasks at a Glance:**
+
+1.  **Confirm the Fabric dataset and publish a query endpoint** – Validate `sales_curated` exists and copy the Fabric GraphQL endpoint.
+2.  **(Instructor) Create a Foundry agent + tool** – Instructor demonstrates agent setup and shares the required details.
+3.  **Implement a minimal MCP-style proxy** – Build a local Flask service that authenticates to Fabric and exposes `POST /mcp/query`.
+4.  **Register the proxy as a tool in Foundry and test end-to-end** – Use ngrok, update the tool `servers.url`, and validate the agent calls your proxy.
+5.  **(Optional) Add a simple web chat experience** – Add `/` + `/ask` routes and a tiny `static\index.html`.
+6.  **(Optional) Try Fabric Data Agent** – Compare Fabric’s built-in NL experience to the proxy approach.
+7.  **Cleanup** – Stop Flask + ngrok and leave the environment tidy.
+
+Each task below includes **why it’s important** and **how to do it** step-by-step. Follow them in order for a smooth end-to-end lab experience.
 
 ***
 
 ## Task 1: Confirm the Fabric Dataset and Publish a Query Endpoint
 
-**Why this step is important:** Before we can use an external agent to query our data, we need to ensure the data is accessible via an API. In Lab 001, you created a workspace and Lakehouse and ingested sales data into it (including a curated table, e.g., `sales_curated`). Now, we must **publish a query interface** for that data. Microsoft Fabric provides two main options:
+**Why?** Before we can use an external agent to query our data, we need to ensure the data is accessible via an API. In Lab 001, you created a workspace and Lakehouse and ingested sales data into it (including a curated table, e.g., `sales_curated`). Now, we must **publish a query interface** for that data. Microsoft Fabric provides two main options:
 
 *   **API for GraphQL:** A GraphQL endpoint that you can create in Fabric, allowing structured queries (GraphQL queries) against your data.
 *   **Fabric Data Agent (optional):** A built-in natural language query experience in Fabric. We’ll treat this as an optional “for fun” exercise at the end of the workshop.
@@ -60,7 +70,7 @@ In this lab, we’ll use **GraphQL** for the main end-to-end flow (agent → pro
 
 **⚠️ Note to students:** This task is performed by the **instructor** as a demonstration. **You will not create the agent yourself.** Instead, pay attention to how it’s set up, because you’ll use the provided agent details in later tasks. The instructor will provide you with any information you need (like an agent name, an ID, or an endpoint to call) after this demo.
 
-**Why this step is important:** We want an AI agent that can answer questions about our data. Microsoft Foundry is a platform where we can create such an agent backed by a large language model (LLM) (e.g., GPT-4). We will configure the agent with:
+**Why?** We want an AI agent that can answer questions about our data. Microsoft Foundry is a platform where we can create such an agent backed by a large language model (LLM) (e.g., GPT-4). We will configure the agent with:
 
 *   A *purpose/role* (to assist with sales data questions).
 *   Access to a *tool* that lets it query the Fabric data (the GraphQL endpoint or Data Agent).
@@ -179,12 +189,14 @@ By doing this, the agent can take a user’s question in natural language, retri
 
 ## Task 3: Implement a Minimal MCP-Style Proxy Service
 
+**Why?** The Foundry agent needs a reliable way to access governed data, but it should not manage Entra ID tokens or call Fabric directly. A small local **proxy** handles authentication and exposes a simple, safe API the agent can call.
+
 With the data endpoint ready (Task 1) and an agent configured (Task 2), create a **minimal proxy** that:
 
 *   Gets an Entra ID token (client credentials) and calls Fabric GraphQL
 *   Accepts a *very small* request shape from the agent (we’ll allow only `type: "sales_by_month"`)
 
-**Steps (minimal):**
+**Steps:**
 
 ### 3.1 Set Up the Proxy Project Environment
 
@@ -481,7 +493,9 @@ If it is successful, you will see a screen like:
 
 ## Task 4: Register the Proxy as an MCP Tool in Foundry and Test End-to-End
 
-Now that your proxy is running and tested, the next step is to connect it with the Microsoft Foundry agent (from Task 2). This means updating the agent’s configuration to use our proxy as its tool for data access. Then we will test the entire chain: **Foundry Agent -> MCP Proxy -> Fabric Data -> Proxy (validates) -> Agent’s answer**.
+**Why?** This is where the lab becomes end-to-end: the agent calls your proxy as a tool, and your proxy retrieves real data from Fabric. You will validate the full chain: **Foundry Agent -> MCP Proxy -> Fabric Data -> Proxy -> Agent answer**.
+
+Now that your proxy is running and tested, the next step is to connect it with the Microsoft Foundry agent (from Task 2). This means updating the agent’s configuration to use our proxy as its tool for data access.
 
 **Steps (Windows + VS Code, step-by-step):**
 
@@ -581,7 +595,7 @@ Now that your proxy is running and tested, the next step is to connect it with t
 
     > Security note (lab): the proxy is unauthenticated, so treat the ngrok URL as temporary and don’t share it publicly.
 
-3.  **Update the Foundry agent tool to point to your ngrok URL**
+3.  **(Instructor-led) Update the Foundry agent tool to point to your ngrok URL**
     1.  In Microsoft Foundry, open the agent (for example, **FabricSalesAgent**).
     2.  Go to **Actions/Tools** (wording may vary) and add or edit an **OpenAPI 3.0 specified tool**.
     3.  Set:
@@ -597,16 +611,16 @@ Now that your proxy is running and tested, the next step is to connect it with t
 4.  **Test end-to-end from the Foundry chat**
     1.  Sanity check (forces a tool call):
         - “Call `fabric_mcp_proxy` with `{ "type": "sales_by_month", "limit": 12 }` and show me the raw JSON.”
-    1.  In the Foundry agent test chat, ask:
+    2.  In the Foundry agent test chat, ask:
         - “What were the total orders and revenue by month?”
-    2.  Watch your proxy terminal (Terminal 1):
+    3.  Watch your proxy terminal (Terminal 1):
         - You should see a `POST /mcp/query` request.
-    3.  If the agent answers without calling the tool:
+    4.  If the agent answers without calling the tool:
         - Improve the tool description (make it more explicit that numbers must come from the tool), then re-test.
 
 5.  **Try a second test question**
     - “Which month had the highest number of orders?”
-4.  **Discuss / note what happened:**
+6.  **Discuss / note what happened:**
     *   The agent now effectively delegates data retrieval to the proxy. The LLM didn’t have to know how to write GraphQL or how to authenticate anywhere – it just knows “when I need data, call this tool.”
     *   The proxy ensured the query was safe and efficient.
     *   This architecture decouples the language understanding part (agent) from the data access part (proxy), which is a good design for maintainability and security.
@@ -617,73 +631,259 @@ Now that your proxy is running and tested, the next step is to connect it with t
 
 ## Task 5: (Optional) Add a Simple Web Chat Experience
 
-*This task is optional and showcases how you might present this agent to end-users.* If you have time, you can create a very basic web interface to interact with your agent+proxy system. The idea is to simulate a user opening a webpage and asking questions, and behind the scenes your Foundry agent and proxy work to provide answers.
+**Why?** This optional task shows how a simple front-end could call your backend. It is not calling Foundry directly; it’s a lightweight “demo UI” that hits your Flask app.
 
-**Why this step is beneficial:** It demonstrates how the pieces come together in an application context. While Foundry’s test console is useful for you as a developer, end users would need a friendly interface – this could be a chat window on a website or a Teams bot. We’ll do a simple web page to prove the concept. It will send user questions to the back-end (our proxy or agent) and display responses.
+*This task is optional and showcases how you might present this agent+proxy system to end-users.* You will build a tiny “chat-like” web page that posts a question to your Flask backend (`/ask`) and displays an answer.
 
-**Steps (Optional):**
+### Prerequisites
 
-1.  **Extend your Flask app to serve a page:** We can use Flask to serve a static HTML page for simplicity.
-    *   Create an `index.html` in the project directory (or a `templates` directory if you prefer Flask templating).
-    *   In `index.html`, write a minimal HTML with:
-        *   An input box for the question and a button to submit.
-        *   An area (div) to show the conversation log (questions and answers).
-        *   A small JavaScript that sends the question to a backend endpoint (we’ll create `/ask`) via fetch, then appends the answer to the conversation div.
-    *   Example (not full code, just outline):
-        This simple script sends the question to `/ask` and expects a JSON with an `answer` field to display. (We could also display structured data if returned, but our agent will turn data into an answer text.)
-    *   In your Flask app (`app.py`), add a route to serve this file:
-        ```python
-        @app.route('/')
-        def index():
-            return app.send_static_file('index.html')
+- Your proxy is already returning real data from `POST /mcp/query` in this shape:
+
+    ```json
+    {
+        "months": [
+            {"month": "YYYY-MM", "orders": 123, "revenue": 4567.89}
+        ]
+    }
+    ```
+
+**Steps:**
+
+1. **Create the HTML page**
+
+     1. In your proxy folder (the same folder as `app.py`), create a folder named `static`. ![alt text](Lab002/l2-image.png) ![alt text](Lab002/l2-image-1.png)
+     2. Inside `static`, create a file named `index.html`. ![alt text](Lab002/l2-image-2.png) ![alt text](Lab002/l2-image-3.png)
+     3. Paste this minimal page:
+
+            ```html
+            <!doctype html>
+            <html lang="en">
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <title>Sales Chat (Demo)</title>
+                    <style>
+                        body { font-family: system-ui, sans-serif; margin: 24px; }
+                        #log { border: 1px solid #ccc; padding: 12px; min-height: 180px; }
+                        .msg { margin: 8px 0; }
+                        .me { font-weight: 600; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Sales Chat (Demo)</h2>
+
+                    <div id="log"></div>
+
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <input id="q" style="flex: 1;" placeholder="Ask: What are orders and revenue by month?" />
+                        <button id="askBtn">Ask</button>
+                    </div>
+
+                    <script>
+                        const log = document.getElementById('log');
+                        const q = document.getElementById('q');
+                        const askBtn = document.getElementById('askBtn');
+
+                        function addLine(who, text) {
+                            const div = document.createElement('div');
+                            div.className = 'msg';
+                            div.innerHTML = `<span class="me">${who}:</span> ${text}`;
+                            log.appendChild(div);
+                            log.scrollTop = log.scrollHeight;
+                        }
+
+                        async function ask() {
+                            const question = (q.value || '').trim();
+                            if (!question) return;
+                            addLine('You', question);
+                            q.value = '';
+
+                            const resp = await fetch('/ask', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ question })
+                            });
+
+                            const data = await resp.json();
+                            addLine('Bot', data.answer || '(no answer)');
+                        }
+
+                        askBtn.addEventListener('click', ask);
+                        q.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
+                    </script>
+                </body>
+            </html>
+            ```
+
+2. **Add a route to serve the page**
+
+    In your `app.py`, add this route **above your existing route block**.
+
+    - Find the first line that starts with `@app.` (for example `@app.post("/mcp/query")` or `@app.get("/health")`).
+    - Paste this `@app.get("/")` route **immediately above** that first `@app.` line.
+    - Keep it **above** the `if __name__ == "__main__":` block at the bottom.
+
+     ```python
+     @app.get("/")
+     def index():
+         return app.send_static_file("index.html")
+     ```
+![alt text](Lab002/l2-image-4.png)
+
+
+3. **Add an `/ask` endpoint (simple “agent simulation”)**
+
+    This endpoint does two things:
+
+    - It checks whether the question is asking for sales by **month**, **year**, or **day**.
+    - If yes, it calls Fabric GraphQL and returns a short text answer.
+
+    Add this to `app.py` **directly below** the `/` route you added in Step 2 (still above your existing `@app.post("/mcp/query")` route). This version calls Fabric GraphQL directly (no nested HTTP call back into your own server).
+
+     ```python
+     @app.post("/ask")
+     def ask():
+         body = request.get_json(force=True) or {}
+         user_question = (body.get("question") or "").strip()
+         q = user_question.lower()
+
+         if not any(k in q for k in ("revenue", "order", "orders", "month", "year", "day")):
+             return jsonify({"answer": "Try: orders and revenue by month (or year/day)."})
+
+         granularity = "month"
+         if "year" in q:
+             granularity = "year"
+         elif "day" in q or "date" in q:
+             granularity = "day"
+         elif "month" in q:
+             granularity = "month"
+
+         graphql_query = """
+     query SalesRows($first: Int!) {
+       sales_curateds(first: $first) {
+         items {
+           SalesOrderNumber
+           OrderDate
+           LineTotal
+         }
+       }
+     }
+     """.strip()
+
+         graphql_url = os.getenv("GRAPHQL_URL")
+         if not graphql_url:
+             return jsonify({"answer": "Server is missing GRAPHQL_URL."}), 500
+
+         access_token = _get_access_token()
+         resp = requests.post(
+             graphql_url,
+             headers={"Authorization": f"Bearer {access_token}"},
+             json={"query": graphql_query, "variables": {"first": 1000}},
+             timeout=30,
+         )
+         payload = resp.json()
+         if resp.status_code != 200 or payload.get("errors"):
+             return jsonify({"answer": "Query failed. Check proxy logs."}), 502
+
+         items = (((payload.get("data") or {}).get("sales_curateds") or {}).get("items")) or []
+
+         by_period = {}
+         for item in items:
+             order_date = (item or {}).get("OrderDate") or ""
+
+             s = str(order_date)
+             if granularity == "year":
+                 period = s[:4] if len(s) >= 4 else None
+             elif granularity == "day":
+                 period = s[:10] if len(s) >= 10 else None
+             else:
+                 period = s[:7] if len(s) >= 7 else None
+
+             if not period:
+                 continue
+
+             order_no = (item or {}).get("SalesOrderNumber")
+
+             try:
+                 revenue = float((item or {}).get("LineTotal") or 0)
+             except Exception:
+                 revenue = 0.0
+
+             bucket = by_period.setdefault(period, {"orders": set(), "revenue": 0.0})
+             if order_no:
+                 bucket["orders"].add(order_no)
+             bucket["revenue"] += revenue
+
+         periods = [
+             {"period": p, "orders": len(b["orders"]), "revenue": round(b["revenue"], 2)}
+             for p, b in sorted(by_period.items(), reverse=True)
+         ]
+         if not periods:
+             return jsonify({"answer": f"I couldn't find any sales data grouped by {granularity}."})
+
+         top = max(periods, key=lambda p: float(p.get("revenue") or 0))
+         unit = "months" if granularity == "month" else ("years" if granularity == "year" else "days")
+         answer = (
+             f"I retrieved {len(periods)} {unit}. "
+             f"Highest revenue was {top.get('revenue')} in {top.get('period')} "
+             f"({top.get('orders')} orders)."
+         )
+         return jsonify({"answer": answer})
+     ```
+
+![alt text](Lab002/l2-image-6.png)
+
+4. **Run and test the web page**
+
+Follow these steps exactly on Windows.
+
+1. **Start the Flask app (Terminal 1) Only if you have closed it from before**
+    1. In VS Code, open a terminal.
+    2. Make sure your terminal is in the same folder as `app.py`.
+    3. If your venv is not active, activate it:
+
+        ```powershell
+        .\.venv\Scripts\Activate.ps1
         ```
-        (This assumes `index.html` is in a folder that Flask serves statically, e.g., you might initialize Flask with `static_folder='.'` for simplicity, or put it in a `/static` directory.)
-2.  **Create an `/ask` endpoint in Flask:** This endpoint will handle the user’s question, forward it to the agent or proxy, and return an answer.
-    *   If your Foundry agent had a direct REST API, you could call it here. However, Foundry might not expose a simple REST endpoint for the agent (especially not to students without keys). Instead, we can simulate the agent’s logic:
-    *   We know our agent, when asked about sales data, essentially would call our proxy and then formulate an answer. We can shortcut that for the demo:
-        *   When a question hits `/ask`, analyze it (very simply) in our code. If it looks like it’s about “sales by month” or similar, we ourselves call the proxy’s `/mcp/query` to get data, then create an answer string and return it.
-        *   This is effectively bypassing the LLM and doing a trivial answer, but it shows the data flow.
-    *   Example implementation in `app.py`:
-        ```python
-        @app.route('/ask', methods=['POST'])
-        def ask():
-            user_question = request.get_json().get('question', '')
-            # Basic logic: if question asks for sales by month, we use our data
-            if 'month' in user_question.lower():
-                # we interpret this as needing a sales_by_month query
-                # default to limit 12 for a year, or parse if a number is mentioned
-                limit = 12
-                # Call our own proxy function or endpoint
-                resp = requests.post("http://localhost:5000/mcp/query", json={"type": "sales_by_month", "limit": limit})
-                data = resp.json()
-                if 'data' in data:
-                    rows = data['data']['rows']
-                    # Formulate a simple answer:
-                    if not rows:
-                        answer_text = "I couldn't find any data."
-                    else:
-                        # find the month with max revenue as an example insight
-                        max_month = max(rows, key=lambda r: r.get('TotalRevenue', 0))
-                        answer_text = f"I retrieved data for {len(rows)} months. "
-                        answer_text += f"The highest revenue was {max_month['TotalRevenue']} in {max_month['OrderMonth']} (with {max_month['TotalOrders']} orders)."
-                    return jsonify({ "answer": answer_text })
-            # Fallback for other questions:
-            return jsonify({ "answer": "Sorry, I can only answer questions about sales by month in this demo." })
+
+    4. Confirm your environment variables are set in this terminal (`TENANT_ID`, `CLIENT_ID`, `CLIENT_SECRET`, `GRAPHQL_URL`).
+    5. Start the server:
+
+        ```powershell
+        python app.py
         ```
-        *   This code uses the local proxy (since it’s the same app, you could also invoke the logic directly rather than an HTTP call to itself).
-        *   It then crafts a very basic answer focusing on the highest revenue month. (A real agent would provide a more comprehensive answer, but we’re keeping it simple.)
-    *   Note: In a real scenario, we’d call the Foundry agent’s API here, sending `user_question` and getting `agent_answer`. But that requires Foundry’s endpoint and possibly credentials. Given the lab constraint (no direct student Azure access), we choose to simulate it as above for demonstration purposes.
-3.  **Run the Flask app (if not already running):** If you left it running from earlier steps, it should now also serve the `/` and `/ask` routes. If you restarted it after adding code, run it again (`flask run ...`).
-4.  **Test the web chat:**
-    *   Open a web browser to `http://localhost:5000` (or the ngrok URL if using that for remote access). You should see the simple interface.
-    *   Type a question like “What are the sales by month?” and click Ask.
-    *   The page should display your question and then, after the request, display an answer from the agent (as generated in our `/ask` logic). For example:\
-        **Q:** What are the sales by month?\
-        **A:** I retrieved data for 12 months. The highest revenue was 7890.0 in June (with 200 orders).\
-        (The numbers will correspond to your data.)
-    *   This shows how a client (browser) can interact with the system. The browser called our Flask backend `/ask`, which internally got data (via the same proxy logic) and produced an answer.
-    *   Keep in mind, this particular implementation is simplified and doesn’t use the real LLM for language generation. In a full setup, the `/ask` would call the actual Foundry agent to get a nicely phrased answer. But even this simplified answer demonstrates that the data flows correctly from the browser -> proxy -> Fabric and back.
-5.  **Compare with Foundry chat:** Notice that the Foundry test console gave a more detailed answer (since GPT-4 was formatting it). Our `/ask` gave a brief answer focusing on one aspect. In practice, you’d want the power of the LLM in the final answer. The key piece is: with the infrastructure we built, any interface (web app, Teams bot, etc.) can send user questions to the agent+proxy and get a response. We could integrate the real agent by exposing an endpoint or packaging this into an application that calls the Foundry SDK.
+
+    6. Leave this terminal running.
+
+2. **Open the web page (Browser)**
+    1. Open a browser to `http://localhost:5000/`.
+    2. You should see **Sales Chat (Demo)**.
+    3. Ask: “What are orders and revenue by month?”
+
+3. **Optional: test `/ask` directly (Terminal 2)**
+    1. Open a second terminal in VS Code.
+    2. Run:
+
+        ```powershell
+        Invoke-RestMethod -Method Post -Uri http://localhost:5000/ask -ContentType application/json -Body '{"question":"What are orders and revenue by month?"}'
+        ```
+
+    3. Optional: try year/day so you can see different results:
+
+        ```powershell
+        Invoke-RestMethod -Method Post -Uri http://localhost:5000/ask -ContentType application/json -Body '{"question":"What are orders and revenue by year?"}'
+        Invoke-RestMethod -Method Post -Uri http://localhost:5000/ask -ContentType application/json -Body '{"question":"What are orders and revenue by day?"}'
+        ```
+
+4. **Troubleshooting (common issues)**
+    - If `http://localhost:5000/` shows **404**, confirm you created `static\index.html` in the same folder as `app.py`.
+    - If `/ask` says the server is missing `GRAPHQL_URL`, set `$env:GRAPHQL_URL` in the same terminal where you run `python app.py`.
+    - If `/ask` returns “Query failed”, check `GRAPHQL_URL` and that the service principal has access to the Fabric workspace/item.
+
+5. **Compare to Foundry**
+
+     - This optional UI is a simple demo and does not call Foundry directly.
+     - Foundry will give a richer, LLM-formatted answer; this UI shows how a browser could talk to your backend.
 
 > **Wrap-up of Optional UI:** This step is not required to complete the lab objectives; it’s to help you visualize how an end user might experience the solution. We built a minimal web UI to ask questions. Under the hood, it hit our proxy (through a simplified route). In a production scenario, a user’s question could trigger a call to the Foundry agent (which uses the proxy as needed), and the answer would be returned to display. The take-home idea is that the system we set up is flexible – the “brain” (agent) and “data access” (proxy) can be used by many front-ends or applications to provide a Q\&A experience over governed data.
 
