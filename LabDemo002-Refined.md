@@ -27,7 +27,7 @@ In this lab, we’ll use **GraphQL** for the main end-to-end flow (agent → pro
 3.  **Publish a query endpoint for the data:** Now, create an API interface for this data. Confirm with your instructor which method to use:
     *   **Option A: API for GraphQL (likely choice).** This means exposing the Lakehouse table via a GraphQL API.
         1.  In Fabric, create a new **API for GraphQL** (if not already done by facilitators). Typically, you would:
-            *   Go to the workspace, click **New Item** and choose **API for GraphQL**. ![New Item menu showing API for GraphQL](image-4.png)
+            *   Go to the workspace, click **New Item** and choose **API for GraphQL**. ![New Item menu showing API for GraphQL](Lab002/image-4.png)
             *   Give the API a name (e.g., “SalesGraphQLAPI”).
             *   Open the new GraphQL API item, then click **Get data**.
             *   Choose your data source and load the table:
@@ -43,9 +43,9 @@ In this lab, we’ll use **GraphQL** for the main end-to-end flow (agent → pro
                 `https://<workspaceGuid>.z*.graphql.fabric.microsoft.com/v1/workspaces/<workspaceGuid>/graphqlapis/<graphqlApiId>/graphql`
             *   Use the exact URL you copied – that’s what clients will call to query the data.
         3.  Ensure you (and the service principal that will be used later) have permission to execute queries on this API. This is set on the **GraphQL API item** (not a general workspace setting). In the workspace item list, open the **...** menu for your GraphQL API item and select **Manage permissions** (or **Manage access**) and enable the ability to **run queries and mutations** (wording can vary by tenant/preview).
-        ![Workspace item menu showing Manage permissions](image-9.png)
+        ![Workspace item menu showing Manage permissions](Lab002/image-9.png)
 
-        **Note:** Your lab account is already a workspace admin and doesn't need any additional permissions. If you click **Add user**, you will see the permission options. ![Manage permissions dialog showing Add user permission options](image-10.png)
+        **Note:** Your lab account is already a workspace admin and doesn't need any additional permissions. If you click **Add user**, you will see the permission options. ![Manage permissions dialog showing Add user permission options](Lab002/image-10.png)
     *   *Assumption:* We will proceed assuming GraphQL (Option A) is set up. It’s the more explicit method and gives us a clear endpoint to call.
 4.  **Recap:** At this point, you have:
     *   The **sales data** in Fabric (from Lab 001).
@@ -195,7 +195,7 @@ Follow these steps exactly on Windows.
     2.  Browse to your lab working directory (for example: `C:\Users\LabUser000\Documents\`). **Make sure you use your documents folder**
     3.  Right-click → **New** → **Folder**.
     4.  Name the folder: `fabric-mcp-proxy`.
-    ![alt text](image-11.png)
+    ![alt text](Lab002/image-11.png)
 
 2.  **Open the new folder in VS Code**
     1.  Open **Visual Studio Code**.
@@ -443,7 +443,7 @@ You will use **two terminals**:
 
     4.  Leave this terminal running.
     5.  It’s OK to see the Flask development server warning:
-        ![alt text](image-13.png)
+        ![alt text](Lab002/image-13.png)
 
 2.  **Terminal 2: Test the proxy endpoint**
     1.  Open a second terminal (VS Code: **Terminal** → **New Terminal**).
@@ -465,14 +465,14 @@ You will use **two terminals**:
 > **If you get `Unauthorized: User is not authorized`:** Your token was accepted, but the **service principal** does not have access to the Fabric workspace/item.
 > Ask the instructor to (1) allow service principals for Fabric/Power BI APIs in tenant settings (if restricted), and (2) add the app/service principal as a **Member/Contributor** to the Fabric workspace that hosts the GraphQL API (and grant access to the GraphQL API item if required).
 
-![alt text](image-15.png)
+![alt text](Lab002/image-15.png)
 
-![alt text](image-14.png)
+![alt text](Lab002/image-14.png)
 
 
 
 If it is successful, you will see a screen like:
-![alt text](image-16.png)
+![alt text](Lab002/image-16.png)
 
 
 > **Concept – MCP Proxy:** The agent calls your proxy. The proxy (not the agent) handles Entra ID auth and calls Fabric GraphQL.
