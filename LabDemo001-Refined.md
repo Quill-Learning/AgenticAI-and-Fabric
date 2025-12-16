@@ -28,8 +28,8 @@ Each task below includes **why it’s important** and **how to do it** step-by-s
 2.  **Sign in:** Log in with the lab credentials provided to you (these should have at least Contributor rights in the tenant for the lab). Once signed in, you will see the Fabric home or your last used workspace.
 3.  **Open Workspaces menu:** In the left-hand navigation pane, click on **Workspaces** (this is where all your workspaces are listed).
 4.  **Create a new workspace:** Click **+ New workspace**. This opens a form to create a workspace.
-5.  **Name the workspace:** Enter a name for your workspace, for example: `CopilotLabWorkspaceDemo1` (or use any naming convention your instructor/organization provided). Choose a name that clearly identifies it as your lab workspace.
-6.  **Select Fabric capacity:** Expand the **Advanced** or **License mode** section. Ensure the workspace’s capacity is set to a **Fabric capacity** (for example, a shared capacity like `F64`). This is crucial because only workspaces on Fabric-capable capacities can use Fabric features (like Lakehouse and Data Factory pipelines). Leave this as the default if it’s already a Fabric capacity.
+5.  **Name the workspace:** Enter a name for your workspace, for example: `LabWorkspaceDemo<<LabUserNNN>>` LabUserNNN is the labusername assigned to you. Choose a name that clearly identifies it as your lab workspace.
+6.  **Select Fabric capacity:** Expand the **Advanced** or **License mode** section. Ensure the workspace’s capacity is set to a **Fabric capacity** (for example, a shared capacity like `F64`).  **Make sure to select the capacity "usfablab"**. This is crucial because only workspaces on Fabric-capable capacities can use Fabric features (like Lakehouse and Data Factory pipelines). Leave this as the default if it’s already a Fabric capacity.
 7.  **Permissions:** Leave the default workspace permissions as-is (unless instructed otherwise). By default, you (as the creator) will be the workspace Admin. (In a real production scenario, you’d carefully assign roles like Admin, Member, Viewer according to governance policies. For this lab, using defaults is fine.)
 8.  **Create the workspace:** Click **Save** or **Create** to provision the new workspace.
 9.  **Verify the workspace is ready:** The workspace should open automatically. You should see the workspace name (e.g., “CopilotLabWorkspaceDemo1”) in the top-left corner and an empty list of contents (since we haven’t added anything yet). This confirms that your new workspace is active and empty.
@@ -44,7 +44,7 @@ Each task below includes **why it’s important** and **how to do it** step-by-s
 
 **Steps:**
 
-1.  **Make sure you’re in the new workspace:** At the top left of the Fabric portal, confirm that you are working inside **`CopilotLabWorkspaceDemo1`** (or the workspace you created in Task 1). All new items should be created in this workspace. If not, use the workspace selector to switch to it.
+1.  **Make sure you’re in the new workspace:** At the top left of the Fabric portal, confirm that you are working inside **`LabWorkspaceDemo<<LabUserNNN>>`** (or the workspace you created in Task 1). All new items should be created in this workspace. If not, use the workspace selector to switch to it.
 2.  **Create a new Lakehouse:** In the workspace, click **New** (or **New item** > **Lakehouse**). This starts the process to create a Lakehouse.
 3.  **Name the Lakehouse:** When prompted, provide a name for the Lakehouse, e.g., `SalesLakehouse`. (If a specific name is given by your lab instructions, use that. Naming it indicates what data it will contain — here it will contain sales data.)
 4.  **Create the Lakehouse:** Click **Create**. Fabric will set up a new Lakehouse item in the workspace.
@@ -102,42 +102,6 @@ Each task below includes **why it’s important** and **how to do it** step-by-s
 
 ***
 
-## Task 3 CP: Ingest Data via a Standard Pipeline using copilot
-
-**Why?** This is the same ingestion you completed manually in Task 3, but authored with **Copilot** in Data Factory. It demonstrates how natural-language prompts can quickly generate a working copy pipeline, while you still validate and finalize the source/sink settings.
-
-**Steps:**
-
-1.  **Open the Lakehouse:** Navigate to `SalesLakehouse` in your workspace.
-2.  **Start a new pipeline:** Select **Get data** > **New data pipeline**.
-3.  **Name the pipeline:** Enter **`IngestSalesDataCopilot`** and create it.
-4.  **Close the initial wizard (if prompted):** If the Copy Assistant/wizard opens automatically, close or cancel it so you return to the pipeline canvas.
-5.  **Open Copilot:** Select **Copilot** from the pipeline ribbon. ![Copilot button](Lab001/image.png)
-6.  **Generate the pipeline with a prompt:** In Copilot, enter the following prompt:
-    
-    `Ingest the data from https://raw.githubusercontent.com/MicrosoftLearning/dp-data/main/sales.csv into the SalesLakehouse as a table`
-7.  **Confirm connections (prompted by Copilot):** Copilot will prompt you to confirm or choose the **source** and **destination** connections. ![Connection prompt](Lab001/image-1.png)
-8.  **Review the source settings:** Select the **Copy data** activity, then open the **Source** tab.
-    *   Select the **URL/HTTP** connection for the source. ![Source connection](Lab001/image-3.png)
-    *   Ensure **File format** is set to **Avro**.
-9.  **Review the destination settings:** Open the **Destination** tab.
-    *   Select the **Lakehouse** connection. ![Destination connection](Lab001/image-4.png)
-    *   Choose **`SalesLakehouse`** as the destination.
-10. **Set the table name with Copilot:** In Copilot, enter the following prompt:
-    
-    `Set copyActivity1 to create a new table called salesdata with a schema of dbo`
-11. **Save and run:** Save the pipeline, then either select **Run** or ask Copilot to run it. ![Run pipeline](Lab001/image-5.png)
-
-12. **Observe the failure:** Note that the pipeline run fails. Then select the Copilot icon to get troubleshooting insights. ![Copilot insights](Lab001/image-6.png)
-13. **Identify the cause:** The run fails because the **source file format** is incorrect for a CSV.
-14. **Fix the source file format:** Select the **Copy data** activity, then open the **Source** tab.
-    *   Confirm the **URL/HTTP** connection is selected. ![Source connection](Lab001/image-3.png)
-    *   Set **File format** to **DelimitedText**.
-15. **Save and re-run:** Save the pipeline, then run it again (or ask Copilot to run it). ![Run pipeline](Lab001/image-5.png)
-
-> **Explanation:** This lab intentionally duplicates the ingestion: you completed it once manually (Task 3) and once with Copilot (this task). The key learning is the workflow: prompt Copilot to create the pipeline, then validate/update the **source**, **destination**, and **table name** before running.
-
-
 ## Task 4: Validate the Ingested Data
 
 **Why?** After any data ingestion, it’s important to **verify that the data actually landed correctly**. This ensures your pipeline worked and you have the expected data before moving on. In this step, you will navigate to the Lakehouse and confirm the new file is present, then preview its contents. This validation gives confidence that the pipeline was successful and that the data schema looks right (e.g. proper headers and values).
@@ -159,23 +123,6 @@ Each task below includes **why it’s important** and **how to do it** step-by-s
     *   If the data preview looks correct (rows of data, reasonable values under each column), then the ingestion is validated.
 4.  **Close the preview:** (optional) Close the preview window/pane to continue.
 
-5.  **Switch to the SQL analytics endpoint:** Open the SQL analytics endpoint for the Lakehouse. ![SQL analytics endpoint](Lab001/image-7.png)
-6.  **Open Copilot:** Select the Copilot icon on the ribbon. ![Copilot icon](Lab001/image-8.png)
-7.  **Get started with Copilot:** Select **Get started**. ![Get started](Lab001/image-9.png)
-8.  **Ask Copilot for a row count:** Use the prompt:
-    
-    `How many records in the table 'salesdata'`
-9.  **Review the generated query:** Copilot will generate a SQL query for you. ![Generated SQL](Lab001/image-10.png)
-10. **Insert the SQL into the editor:** Select **Insert code**, and confirm it creates a new SQL query tab. ![Insert code](Lab001/image-11.png) ![New SQL query](Lab001/image-12.png)
-11. **Run and validate:** Run the query and confirm the result count (expected: **32,718** rows). ![Row count result](Lab001/image-13.png)
-12. **Ask for additional validation queries:** Return to Copilot and ask:
-    
-    `What other queries should I use to validate the data and counts?`
-    
-    Note the suggestions Copilot provides.
-
-![alt text](Lab001/image-14.png)
-
 > **Explanation:** By previewing `sales.csv` in the Lakehouse, you confirmed the pipeline did its job: the file is in the correct location and the content is readable. The headers indicate that the **“First row as header”** setting worked (so the first line became headers, not a data row). This step is crucial whenever you load new data, to catch any issues early (like wrong delimiter causing all data to end up in one column, or an empty file due to a bad connection). Everything looks good, so you can proceed to use this data confidently.
 
 ***
@@ -192,26 +139,14 @@ Now that the raw data is in the Lakehouse, let’s perform a simple **transforma
 
 **Steps:**
 
-1.  **Make sure you are in teh workspcae you created earlier:** 
-
+1.  **Switch to Data Engineering experience:** In the Fabric portal left menu, click on the **Data Engineering** icon (sometimes labeled as “Data Science” depending on view). This doesn’t change your workspace; it changes the UI to show options relevant to data engineers (like notebooks and Spark).
 2.  **Create a new Notebook:** In your workspace (still in `CopilotLabWorkspaceDemo1`), click **New** (or **New item**) and select **Notebook**.
     *   If prompted to choose an experience, pick the one that allows notebooks (Data Engineering).
-3. Name the notebook "IngestSalesData" and ensure the correct workspace is slected for teh lcoation ![alt text](Lab001/image-15.png)
-
-3.  **Attach the Lakehouse to the Notebook:** From the explorer pane, choose add data items and select SalesLakehouse. 
-![alt text](Lab001/image-16.png)
-
-Make sure the lcoation is in your workspace
-![alt text](Lab001/image-17.png)
-
-Choose **`SalesLakehouse`**. Then Select  **Connect** to add to the notebook.
+3.  **Attach the notebook to the Lakehouse:** A dialog will ask you to **select a default Lakehouse** for the notebook. Choose **`SalesLakehouse`**. Then confirm to **Create** the notebook.
     *   Attaching the Lakehouse means the Spark session for this notebook can directly interact with `SalesLakehouse` (read from its Files, write to its Tables).
-
-
 4.  **Notebook interface:** After creation, you should see a new notebook tab open. It usually contains an empty cell and shows that it’s connected to a Spark runtime (you might see a status like “Running” or a kernel indicator).
-    *   Confirm on the left side that under “Explorer”, there is an entry for `SalesLakehouse`. This indicates the notebook is properly attached.
+    *   Confirm on the right side that under “Attached Lakehouses” or similar, there is an entry for `SalesLakehouse`. This indicates the notebook is properly attached.
     *   Also note the dropdown for language in the top of the cell; it might default to PySpark (Python for Spark) or No Language. We will use PySpark here.
-    ![alt text](Lab001/image-18.png)
 
 > **Explanation:** In Fabric, a **notebook** is essentially a Jupyter-style notebook integrated into the service, which allows interactive coding. By attaching `SalesLakehouse`, any file path or table name we reference in Spark will be relative to that Lakehouse’s data. This integration simplifies reading/writing data – we don’t have to manually connect to storage; it’s done by Fabric. Now with the notebook ready, we can use Spark to manipulate our sales data.
 
@@ -225,7 +160,7 @@ Choose **`SalesLakehouse`**. Then Select  **Connect** to add to the notebook.
 2.  **Write code to read the CSV file:** Click into the first cell (replace any placeholder text if present) and type the following code:
     ```python
     df = spark.read.option("header", "true").csv("Files/Files/sales/raw/sales.csv")
-    df.show(20)
+    df.show(20, truncate=False)
     ```
 
     Let’s break down what this does:
@@ -352,8 +287,6 @@ df_monthly.orderBy(col("TotalSales").desc()).show(12, truncate=False)
 
 > **Explanation:** This exercise shows a more realistic “analytics” transformation: you enrich raw rows with derived columns and then aggregate to a summary view (monthly totals). Copilot can accelerate this, but you still validate column names, date parsing, and output before using it in a pipeline or production process.
 
-
-
 ***
 
 ## Task 6: Automate Ingestion with Fabric Copilot
@@ -388,13 +321,14 @@ Now that you’ve done one ingestion pipeline manually, let’s see how **Copilo
         *   The destination (SalesLakehouse, under a folder path `Files/copilot/raw/`).
         *   The file name to use (`sales.csv`), but also that this file name should be a parameter (meaning Copilot should make it a variable).
 2.  **Send the prompt:** Click **Generate** (or press Enter) to send the request to Copilot.
-3.  **Choose/confirm connections:** If Copilot prompts you to select connections, click into the placeholder field and type `/` to list available connections. Select the **HTTP** connection for the source and the **Lakehouse** connection for the sink (prefer the ones you created earlier).
+3.  **Choose/confirm connections:** If Copilot prompts you to select connections (you may see a placeholder like ![alt text](image-1.png)), click into the field and type `/` to list available connections. Select the **HTTP** connection for the source.
     *   If Copilot asks to create new connections/datasets, approve the prompts. For the HTTP source, keep authentication as **Anonymous**.
 4.  **Wait for pipeline generation:** After a few moments, Copilot will add components onto the pipeline canvas automatically. You should see at least:
     *   A **Copy data** activity (likely with a default name like “Copy data 1”).
     *   Some datasets or connection references on the left panel (possibly a new HTTP dataset for the source and a Lakehouse dataset for the sink).
     *   It might also create a pipeline parameter (for the file name) visible in the pipeline’s settings.
     *   Copilot might also show a textual response describing what it did.
+    ![alt text](image-2.png)
 
 > **Explanation:** In this step, Copilot interpreted your instructions and built the pipeline. This usually includes setting up an HTTP **source dataset** with the given URL, a **sink** pointing to the Lakehouse and folder, and wiring them into a **Copy Data activity**. The noteworthy part is making the file name a parameter – this means the pipeline isn’t hardcoded to “sales.csv” but uses a variable (so we can easily change it when running the pipeline). Copilot’s value is speed and convenience; however, it might not get everything perfect, so we will review its work next.
 
@@ -415,7 +349,7 @@ Now that you’ve done one ingestion pipeline manually, let’s see how **Copilo
     *   The **Folder path** should be `Files/copilot/raw/` as requested.
     *   The **File name** might show something like `@pipeline().parameters.FileName` instead of a literal “sales.csv”. This indicates it’s using a pipeline parameter for the name.
     *   The default value for that parameter at creation might be “sales.csv” if Copilot set it up that way.
-4.  **Locate the pipeline parameter:** In the pipeline editor, find the **Pipeline settings** or **Parameters** section. (Often there’s a panel or a button for pipeline parameters – possibly an icon of double curly braces { } or in the properties of the pipeline itself.)
+4.  **Locate the pipeline parameter:** In the pipeline editor, find the **Pipeline settings** or **Parameters** section. (Often there’s a panel or a button for pipeline parameters – possibly an icon of double curly braces { } or in the properties of the pipeline itself.) I normally click on a blank area of the canvas and I can see the parameters area ![alt text](image-3.png)
     *   You should see a parameter named **FileName** (created by Copilot because we said “parameterize the file name”).
     *   Check its default value. Copilot likely set the default to “sales.csv” as per the prompt.
 5.  **Change the default FileName (for clarity):** Click the FileName parameter to edit it. Change its default value from `sales.csv` to **`sales_copilot.csv`**.
@@ -500,6 +434,8 @@ Finally, it’s critical to consider **security and governance** for your data. 
 
 **Steps:**
 
+Steps 1 and 2 will be instructor demo
+
 1.  **Open workspace access:** In the Fabric portal, open your workspace **CopilotLabWorkspaceDemo1**.
     *   In the workspace header/command bar, select **Manage access** (sometimes shown as a people icon).
     *   If you don’t see **Manage access**, open the workspace menu (**…**) and look for **Manage access** or **Workspace access**. (In some UI layouts it’s under **Workspace settings**.)
@@ -524,6 +460,9 @@ Finally, it’s critical to consider **security and governance** for your data. 
     *   For this lab, we won’t change anything, but be aware that Lakehouse items should be governed: e.g., you might give a data science team access to read curated data but not write, etc.
     *   Document which groups can write vs. read, if this were a real project, for clarity.
 5.  **Verify pipeline permissions (if applicable):** Generally, pipeline permissions are tied to workspace roles (Contributors can edit them). Just make sure that no one outside the workspace is editing your pipelines. (This usually isn't an issue unless someone shared the pipeline explicitly.)
+
+Steps 6 will be instructor demo
+
 6.  **(Optional) Integrate with Purview for lineage:** If Microsoft Purview (data governance service) is available and connected in your tenant (the lab prerequisites mention Purview):
     *   In Purview’s portal or via its management, ensure that the Fabric workspace is registered as a source. This might involve adding a Fabric source with the workspace ID.
     *   Run a **scan** or wait for an automated scan. This will let Purview discover assets like the Lakehouse, datasets, pipelines.
@@ -544,6 +483,9 @@ Finally, it’s critical to consider **security and governance** for your data. 
 > *   Always align such labs with your organization’s governance standards when in a real environment: e.g., maybe you’d use a **standard workspace name** (like “Analytics – Sales Data”), predefined **access groups** (like a security group for the data engineering team as contributors, one for analysts as viewers), and ensure all actions (ingest, transform) run under service identities that are logged in an audit trail.
 
 ***
+
+
+
 
 ## Cleanup
 
